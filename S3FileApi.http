@@ -1,0 +1,29 @@
+@S3FileApi_HostAddress = https://localhost:7005
+
+GET {{S3FileApi_HostAddress}}/api/files
+Accept: application/json
+
+###
+
+GET {{S3FileApi_HostAddress}}/api/files?prefix=documents/
+Accept: application/json
+
+###
+
+POST {{S3FileApi_HostAddress}}/api/files
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name=file; filename=example.txt
+Content-Type: text/plain
+
+Example content
+--boundary--
+
+###
+
+GET {{S3FileApi_HostAddress}}/api/files/example.txt
+
+###
+
+DELETE {{S3FileApi_HostAddress}}/api/files/example.txt

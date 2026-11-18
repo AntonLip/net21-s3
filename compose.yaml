@@ -1,0 +1,66 @@
+x-logging: &rotating-json-file
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  api:
+    image: antonlip/s3:0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: s3
+    logging: *rotating-json-file
+    ports:
+      - "5070:8080"
+    # env_file:
+    #   - dot.env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      AWS_ACCESS_KEY_ID: local-access-key
+      AWS_SECRET_ACCESS_KEY: local-secret-key-change-me
+      S3__BucketName: s3fileapi-local
+      S3__Region: us-east-1
+      S3__ServiceUrl: http://rustfs:9000
+      S3__ForcePathStyle: "true"
+    depends_on:
+      createbucket:
+        condition: service_completed_successfully
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    command: /data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      RUSTFS_ACCESS_KEY: local-access-key
+      RUSTFS_SECRET_KEY: local-secret-key-change-me
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+      RUSTFS_CONSOLE_ENABLE: "true"
+    volumes:
+      - rustfs-data:/data
+      # - /home/anton/PRG/DevOps/teachmeskills/net24/data:/data:rw
+
+  createbucket:
+    image: amazon/aws-cli:latest
+    depends_on:
+      rustfs:
+        condition: service_started
+    environment:
+      AWS_ACCESS_KEY_ID: local-access-key
+      AWS_SECRET_ACCESS_KEY: local-secret-key-change-me
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until aws --endpoint-url=http://rustfs:9000 s3api head-bucket --bucket s3fileapi-local 2>/dev/null \
+          || aws --endpoint-url=http://rustfs:9000 s3 mb s3://s3fileapi-local; do
+          sleep 2
+        done
+
+volumes:
+  rustfs-data:
