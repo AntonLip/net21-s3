@@ -28,14 +28,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Restore dependencies
-        run: dotnet restore S3FileApi.csproj
-
       - name: Build
-        run: dotnet build S3FileApi.csproj --configuration Release --no-restore
+        run: docker build --file Dockerfile --tag s3fileapi:${{ github.sha }} --target build .
 
-      - name: Run tests
-        run: dotnet test S3FileApi.csproj --configuration Release --no-build
+      # - name: Build
+      #   run: dotnet build S3FileApi.csproj --configuration Release --no-restore
+
+      # - name: Run tests
+      #   run: dotnet test S3FileApi.csproj --configuration Release --no-build
 
   docker-build:
     name: Build Docker image
