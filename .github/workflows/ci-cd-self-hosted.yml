@@ -1,6 +1,10 @@
 name: Self-hosted CI
 
 on:
+  push:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -50,5 +54,8 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Check out repository
+        run: whoami
+      
       - name: Build Docker image
         run: docker build --file Dockerfile --tag s3fileapi:${{ github.sha }} .
