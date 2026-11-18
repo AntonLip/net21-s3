@@ -56,3 +56,16 @@ jobs:
       
       - name: Build Docker image
         run: docker build --file Dockerfile --tag s3fileapi:${{ github.sha }} .
+
+  deploy:
+    name: Build Docker image
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 20
+    needs: build-and-test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      
+      - name: Docker compose deploy 
+        run: docker compose up -d --build api
