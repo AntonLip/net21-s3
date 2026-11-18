@@ -58,4 +58,4 @@ jobs:
         run: whoami
       
       - name: Build Docker image
-        run: docker build --file Dockerfile --tag s3fileapi:${{ github.sha }} .
+        run: sudo docker build --file Dockerfile --tag s3fileapi:${{ github.sha }} .
