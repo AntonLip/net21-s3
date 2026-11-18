@@ -53,9 +53,6 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
-      - name: Check out repository
-        run: sudo -i
       
       - name: Build Docker image
-        run: sudo docker build --file Dockerfile --tag s3fileapi:${{ github.sha }} .
+        run: docker build --file Dockerfile --tag s3fileapi:${{ github.sha }} .
